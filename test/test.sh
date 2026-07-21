@@ -21,10 +21,18 @@ ck $? "4 missing ruleset -> loud marker"
 sh "$FX/hooks/flint-style.sh" SessionStart >/dev/null 2>&1; ck $? "4b marker path exits 0"
 
 # 5: python missing -> loud marker + exit 0
-BIN="$FX/bin"; mkdir -p "$BIN"
-for t in dirname head; do ln -s "$(command -v $t)" "$BIN/$t" 2>/dev/null || cp "$(command -v $t)" "$BIN/$t"; done
-OUT="$(env -i PATH="$BIN" /bin/sh hooks/flint-style.sh SessionStart 2>/dev/null)"
-echo "$OUT" | grep -q 'not on PATH'; ck $? "5 no python -> loud marker"
+# Skipped on MSYS/Git Bash: env -i strips vars (SYSTEMROOT etc.) Windows needs
+# to exec anything, so the stripped-PATH harness can't be built faithfully
+# there. The guard under test is OS-independent and proven on the unix runners.
+case "$(uname -s 2>/dev/null)" in
+    MINGW*|MSYS*|CYGWIN*)
+        echo "ok  5 no python -> loud marker (skipped: env -i not faithful on MSYS)" ;;
+    *)
+        BIN="$FX/bin"; mkdir -p "$BIN"
+        for t in dirname head; do ln -s "$(command -v $t)" "$BIN/$t" 2>/dev/null || cp "$(command -v $t)" "$BIN/$t"; done
+        OUT="$(env -i PATH="$BIN" /bin/sh hooks/flint-style.sh SessionStart 2>/dev/null)"
+        echo "$OUT" | grep -q 'not on PATH'; ck $? "5 no python -> loud marker" ;;
+esac
 
 # 6: EPIPE -> exit 0
 sh hooks/flint-style.sh SessionStart 2>/dev/null | head -c 10 >/dev/null; ck $? "6 EPIPE exit 0"
@@ -41,8 +49,10 @@ else
 fi
 
 # 9: oversize ruleset capped at 64 KB -> the real ruleset, capped, never the marker
-rm -f "$FX/flint.md"   # step 8's symlink: open("w") would FOLLOW it into /etc/hosts
-"$PY" -c 'open("'"$FX"'/flint.md","w").write("# flint\n" + "x"*5242880)'
+rm -f "$FX/flint.md"   # step 8's symlink: writing through it would FOLLOW it into /etc/hosts
+# Shell-built, not python-built: a native Windows python can't resolve Git
+# Bash's POSIX /tmp paths.
+{ printf '# flint\n'; yes x | tr -d '\n' | head -c 5242880; } > "$FX/flint.md" 2>/dev/null
 sh "$FX/hooks/flint-style.sh" SessionStart | "$PY" -c 'import json,sys; c=json.load(sys.stdin)["hookSpecificOutput"]["additionalContext"]; assert len(c)<=65536 and "FLINT HOOK ERROR" not in c and c.lstrip().startswith("# flint")'
 ck $? "9 64KB cap"
 
