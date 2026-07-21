@@ -39,8 +39,8 @@ after moving the clone re-points the paths.
 | `UserPromptSubmit` | one static anchor line (recency beats one-shot injection) |
 
 - **Update**: `git pull`. Nothing else.
-- **Uninstall**: `./install.sh --uninstall` — removes exactly the 3 flint
-  entries, touches nothing else.
+- **Uninstall**: `./install.sh --uninstall` (or `python3 uninstall.py`) —
+  removes exactly the 3 flint entries, touches nothing else.
 - **Verify**: `sh test/test.sh` (also run by CI on Linux/macOS/Windows).
 
 A session showing `FLINT HOOK ERROR: …` means a moved clone or missing

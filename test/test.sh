@@ -29,7 +29,7 @@ case "$(uname -s 2>/dev/null)" in
         echo "ok  5 no python -> loud marker (skipped: env -i not faithful on MSYS)" ;;
     *)
         BIN="$FX/bin"; mkdir -p "$BIN"
-        for t in dirname head; do ln -s "$(command -v $t)" "$BIN/$t" 2>/dev/null || cp "$(command -v $t)" "$BIN/$t"; done
+        for t in dirname head; do ln -s "$(command -v "$t")" "$BIN/$t" 2>/dev/null || cp "$(command -v "$t")" "$BIN/$t"; done
         OUT="$(env -i PATH="$BIN" /bin/sh hooks/flint-style.sh SessionStart 2>/dev/null)"
         echo "$OUT" | grep -q 'not on PATH'; ck $? "5 no python -> loud marker" ;;
 esac
@@ -70,10 +70,15 @@ sh hooks/flint-style.sh SessionStart     | grep -q 'once per lib per session' \
   && sh hooks/flint-style.sh UserPromptSubmit | grep -q 'context7 first'
 ck $? "12 docs-first clauses"
 
-# 13: derivado character budgets — surface limits are external hard caps
+# 13: derivado character budgets. 13b/13c are external hard caps (published
+# surface limits); 13d-13f are sanity ceilings — those surfaces publish no
+# cap, the guard only catches runaway growth.
 [ "$(wc -c < flint.md)" -le 65536 ]; ck $? "13a ruleset <= 64KB"
 [ "$(wc -c < desktop/chat/profile.md)" -le 1500 ]; ck $? "13b chat profile <= 1500"
 [ "$(wc -c < desktop/chat/project-instructions.md)" -le 8000 ]; ck $? "13c project instructions <= 8000"
+[ "$(wc -c < desktop/chat/style.md)" -le 8000 ]; ck $? "13d chat style <= 8000 (sanity)"
+[ "$(wc -c < desktop/cowork/claude-md-snippet.md)" -le 8000 ]; ck $? "13e cowork snippet <= 8000 (sanity)"
+[ "$(wc -c < desktop/cowork/SKILL.md)" -le 65536 ]; ck $? "13f cowork skill <= 64KB (sanity)"
 
 # 14: verbatim-derivado canary — both full-ruleset derivados carry the token
 grep -q 'once per lib per session' desktop/cowork/SKILL.md \

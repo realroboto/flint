@@ -80,6 +80,20 @@ def test_foreign_hooks_survive_install_and_uninstall():
         assert flint_commands(cfg) == []
 
 
+def test_default_home_branch_without_claude_config_dir():
+    # The branch real installs hit: no CLAUDE_CONFIG_DIR, settings under
+    # ~/.claude. HOME (POSIX) and USERPROFILE (Windows) both point at the tmp.
+    with tempfile.TemporaryDirectory() as d:
+        env = {k: v for k, v in os.environ.items() if k != 'CLAUDE_CONFIG_DIR'}
+        env['HOME'] = d
+        env['USERPROFILE'] = d
+        r = subprocess.run([sys.executable, str(ROOT / 'install.py')],
+                           env=env, capture_output=True, text=True)
+        assert r.returncode == 0
+        cfg = json.loads((Path(d) / '.claude' / 'settings.json').read_text())
+        assert len(flint_commands(cfg)) == 3
+
+
 def test_invalid_settings_json_aborts_without_clobber():
     with tempfile.TemporaryDirectory() as d:
         p = Path(d) / 'settings.json'
