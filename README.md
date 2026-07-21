@@ -59,6 +59,15 @@ There is no off mode. Ask for "full prose" in plain language and the ruleset
 itself honors it — that's the only switch, and it's behavioral, not
 mechanical.
 
+## Deeper docs
+
+- [docs/flint.md](docs/flint.md) — complete reference: provenance table,
+  hook invariants, recipes, test matrix.
+- [docs/hook-engineering.md](docs/hook-engineering.md) — the generic trap
+  catalog for Claude Code context-injection hooks (from the upstream audits).
+- [docs/ruleset-design.md](docs/ruleset-design.md) — how to write injected
+  rulesets LLMs actually follow.
+
 ## Credits & license
 
 MIT. The ruleset preserves benchmark-validated wording from
