@@ -19,26 +19,44 @@ or Python left the PATH; re-run `./install.sh`.
 
 ## Chat
 
-1. **Style** (prose layer, all chats): Chat → style picker → Create custom
-   style → paste the block from [`chat/style.md`](chat/style.md).
-2. **Profile instructions** (global): Settings → Profile → paste
-   [`chat/profile.md`](chat/profile.md) (fits the 1,500-char budget).
-3. **Projects** (dev work): Project → instructions → paste
-   [`chat/project-instructions.md`](chat/project-instructions.md) — the
+UI paths verified 2026-07-28 (Claude for Mac). Anthropic moves this menu;
+when a path is gone, the artifact still applies — find the equivalent field.
+
+1. **Instructions for Claude** (account-wide, the only always-on channel):
+   your initials, bottom-left → `Settings` → `General` → `Profile` →
+   `Instructions for Claude` → paste [`chat/profile.md`](chat/profile.md)
+   (fits the 1,500-char budget).
+2. **Style** (prose layer, per chat): in any chat, `+` next to the prompt
+   input → hover `Use style` → `Create & edit styles` → `Create custom style`
+   → `Describe style instead` → paste [`chat/style.md`](chat/style.md) →
+   `Create style`. A Style applies to the chat you select it in — every new
+   chat starts back on `Normal`. Account-wide coverage comes from step 1.
+3. **Projects** (dev work): inside the Project → `Set project instructions` →
+   paste [`chat/project-instructions.md`](chat/project-instructions.md) — the
    ruleset verbatim (fits the ~8,000-char budget).
 
 ## Cowork
 
-1. **Skill**: symlink [`cowork/`](cowork/) into the shared store as
-   `~/.claude/skills/flint` (directory containing `SKILL.md`):
+Cowork does not read a local skills directory — no `~/.claude/skills`
+symlink, no folder sync. Skills are uploaded as a ZIP, per account.
+
+1. **Skill**: package [`cowork/`](cowork/) as a ZIP whose top-level entry is a
+   directory named `flint` containing `SKILL.md`:
 
    ```sh
-   ln -s "$(pwd)/desktop/cowork" ~/.claude/skills/flint
+   rm -rf /tmp/flintpkg && mkdir -p /tmp/flintpkg/flint
+   cp desktop/cowork/SKILL.md /tmp/flintpkg/flint/
+   (cd /tmp/flintpkg && zip -qr ~/Desktop/flint-skill.zip flint)
    ```
+
+   Then in Cowork: `Customize` in the left sidebar → `Skills` → `+` →
+   `Create skill` → `Upload a skill` → pick the ZIP → leave the toggle on.
 
 2. **CLAUDE.md channel**: run the marker test in
    [`cowork/claude-md-snippet.md`](cowork/claude-md-snippet.md); paste the
-   snippet only if the test passes.
+   snippet only if the test passes. Last run 2026-07-28 (Claude for Mac,
+   macOS 26.6): **no marker** — Cowork did not read the file, so the skill
+   was the only working channel on that machine.
 
 ## Re-sync checklist (every ruleset release)
 

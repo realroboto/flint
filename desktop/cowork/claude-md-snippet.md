@@ -1,7 +1,9 @@
 # Cowork always-on channel — test first, then paste
 
 Cowork does not fire Claude Code hooks (upstream: closed, not planned). Whether
-it reads `~/.claude/CLAUDE.md` is undocumented. Test before relying on it:
+it reads `~/.claude/CLAUDE.md` is undocumented, and one observed run says no
+(2026-07-28, Claude for Mac, macOS 26.6: no marker). Test on your own machine
+before relying on it:
 
 1. Add this single line to `~/.claude/CLAUDE.md`:
 
