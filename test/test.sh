@@ -77,7 +77,6 @@ ck $? "12 docs-first clauses"
 [ "$(wc -c < desktop/chat/profile.md)" -le 1500 ]; ck $? "13b chat profile <= 1500"
 [ "$(wc -c < desktop/chat/project-instructions.md)" -le 8000 ]; ck $? "13c project instructions <= 8000"
 [ "$(wc -c < desktop/chat/style.md)" -le 8000 ]; ck $? "13d chat style <= 8000 (sanity)"
-[ "$(wc -c < desktop/cowork/claude-md-snippet.md)" -le 8000 ]; ck $? "13e cowork snippet <= 8000 (sanity)"
 [ "$(wc -c < desktop/cowork/SKILL.md)" -le 65536 ]; ck $? "13f cowork skill <= 64KB (sanity)"
 
 # 14: verbatim-derivado canary — both full-ruleset derivados carry the token

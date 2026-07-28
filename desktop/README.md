@@ -52,11 +52,11 @@ symlink, no folder sync. Skills are uploaded as a ZIP, per account.
    Then in Cowork: `Customize` in the left sidebar → `Skills` → `+` →
    `Create skill` → `Upload a skill` → pick the ZIP → leave the toggle on.
 
-2. **CLAUDE.md channel**: run the marker test in
-   [`cowork/claude-md-snippet.md`](cowork/claude-md-snippet.md); paste the
-   snippet only if the test passes. Last run 2026-07-28 (Claude for Mac,
-   macOS 26.6): **no marker** — Cowork did not read the file, so the skill
-   was the only working channel on that machine.
+The skill is the only Cowork channel. There is no `CLAUDE.md` channel: Cowork
+executes in a remote Ubuntu VM with no access to the host filesystem, so
+`~/.claude/CLAUDE.md` on your machine is unreachable by construction — not a
+misconfiguration, and no marker test will ever pass (confirmed 2026-07-28,
+Claude for Mac: the Cowork session itself reported running in the VM).
 
 ## Re-sync checklist (every ruleset release)
 
@@ -66,5 +66,4 @@ Derivados do not update themselves. After ANY edit to `flint.md`:
 - [ ] `cowork/SKILL.md` — regenerate (frontmatter + verbatim ruleset)
 - [ ] `chat/style.md` — re-derive if a PROSE rule changed
 - [ ] `chat/profile.md` — re-derive if a core rule changed; keep ≤ 1,500 chars
-- [ ] `cowork/claude-md-snippet.md` — re-derive if a core rule changed
 - [ ] `sh test/test.sh` — budget guards + canary tokens must pass
