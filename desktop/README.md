@@ -62,6 +62,11 @@ Claude for Mac: the Cowork session itself reported running in the VM).
 
 Derivados do not update themselves. After ANY edit to `flint.md`:
 
+The paste-in artifacts carry no hard wrap — a GUI textarea keeps the newlines
+verbatim, so a wrapped paragraph reaches the model as ragged lines. Regenerate
+by copying the ruleset in, then `python3 tools/unwrap.py <file>`.
+
+
 - [ ] `chat/project-instructions.md` — regenerate (header + verbatim ruleset)
 - [ ] `cowork/SKILL.md` — regenerate (frontmatter + verbatim ruleset)
 - [ ] `chat/style.md` — re-derive if a PROSE rule changed
