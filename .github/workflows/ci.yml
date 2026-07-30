@@ -11,6 +11,10 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    # The suite finishes in under a second. A hung fixture pipeline once burned
+    # the full 6h Actions default on macOS and read as `cancelled`, not as a
+    # failure — see AGENTS.md. Fail fast instead (10 min = pure slack).
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       # `shell: bash` = Git Bash on the Windows runner — the exact path
