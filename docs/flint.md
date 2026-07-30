@@ -44,7 +44,7 @@ One script, three Claude Code hook events. The **event name arrives as `$1`**
 
 | Event | Payload | Why |
 |---|---|---|
-| `SessionStart` | full ruleset (flint.md, ≤64 KB) | loads the rules once per session |
+| `SessionStart` | full ruleset (flint.md, ≤10,000 chars — §8) | loads the rules once per session |
 | `SubagentStart` | full ruleset (same) | SessionStart context is parent-thread only — Task-spawned subagents NEVER see it |
 | `UserPromptSubmit` | one static line (hardcoded in the script) | attention anchor: "recency and repetition win in LLM attention" — a one-shot injection loses to competing per-turn injections |
 
@@ -139,7 +139,10 @@ Every invariant is a fixed upstream bug. Breaking one reintroduces it.
    The `/etc` path is root-owned — only the fallbacks need `[ -L ]`.
 6. **Cap the read: `head -c 65536`.** The decode uses
    `.decode("utf-8", "replace")` — a byte-cap can split a UTF-8 sequence; a
-   `UnicodeDecodeError` here would mean empty context.
+   `UnicodeDecodeError` here would mean empty context. This is a memory guard
+   against an oversized file, NOT the operative size limit: the platform caps
+   hook output at 10,000 characters (§8). A ruleset between the two numbers
+   passes every invariant here and still fails to reach the model.
 7. **Quote every expansion.** caveman #157: an unquoted plugin root broke for
    every user with a space in their home path. Applies to the installer's
    registered command too.
@@ -192,8 +195,8 @@ for full prose in plain language — which the ruleset itself honors.
 loud markers, argv whitelist, symlink refusal, 64 KB cap, EPIPE, shell
 syntax), the installer suite (`test/install_test.py`: registration,
 idempotency, re-pointing, foreign-hook preservation, no-clobber on invalid
-JSON), derivado character budgets (profile ≤1,500 · project instructions
-≤8,000 · ruleset ≤64 KB), and the drift-canary token
+JSON), character budgets (hook stdout ≤9,000 · profile ≤1,500 · project
+instructions ≤8,000), and the drift-canary token
 `once per lib per session` across the verbatim derivados. CI runs the matrix
 on ubuntu/macos/windows + shellcheck; the Windows runner exercises the Git
 Bash path.
@@ -207,7 +210,11 @@ Bash path.
 - Don't paraphrase rules listed in §4's provenance table.
 - Don't add levels, flags, config files, slash commands, or badges. (§7)
 - Don't mention an off-switch in flint.md. (§4)
-- Don't grow flint.md past the 64 KB cap — and question anything past ~10 KB.
+- Don't grow the hook's stdout past 10,000 characters — the platform's cap,
+  and the real ceiling on `flint.md`. Over it, the ruleset is replaced by a
+  preview + file path and reaches the model as a pointer, silently, with no
+  loud marker. Test 13a guards it at 9,000; today's headroom is ~1,200
+  characters. (`head -c 65536` in the hook is a different guard — §5.6.)
 - Don't use bashisms — macOS `/bin/sh`, Debian dash, and Git Bash must all
   run it. (§5.8)
 - Don't edit a derivado by hand without the re-sync checklist — the verbatim

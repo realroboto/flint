@@ -70,10 +70,18 @@ sh hooks/flint-style.sh SessionStart     | grep -q 'once per lib per session' \
   && sh hooks/flint-style.sh UserPromptSubmit | grep -q 'context7 first'
 ck $? "12 docs-first clauses"
 
-# 13: derivado character budgets. 13b/13c are external hard caps (published
-# surface limits); 13d-13f are sanity ceilings — those surfaces publish no
-# cap, the guard only catches runaway growth.
-[ "$(wc -c < flint.md)" -le 65536 ]; ck $? "13a ruleset <= 64KB"
+# 13: character budgets. 13a/13b/13c are external hard caps (published surface
+# limits); 13d-13f are sanity ceilings — those surfaces publish no cap, the
+# guard only catches runaway growth.
+#
+# 13a is the tightest and the least obvious: Claude Code caps hook output
+# strings (additionalContext AND plain stdout) at 10,000 CHARACTERS, and past
+# that swaps the text for a preview + file path. The ruleset would reach the
+# model as a pointer, with no FLINT HOOK ERROR — invariant #4 only covers a
+# missing file, not one the platform swallows. Measured on the real emitted
+# stdout, in bytes: bytes >= characters, so this guarantees the character cap.
+[ "$(sh hooks/flint-style.sh SessionStart | wc -c)" -le 9000 ]
+ck $? "13a hook stdout <= 9000 chars (10k platform cap)"
 [ "$(wc -c < desktop/chat/profile.md)" -le 1500 ]; ck $? "13b chat profile <= 1500"
 [ "$(wc -c < desktop/chat/project-instructions.md)" -le 8000 ]; ck $? "13c project instructions <= 8000"
 [ "$(wc -c < desktop/chat/style.md)" -le 8000 ]; ck $? "13d chat style <= 8000 (sanity)"
