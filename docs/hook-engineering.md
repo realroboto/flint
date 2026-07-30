@@ -20,6 +20,17 @@ flint-specific invariant list is [`docs/flint.md`](flint.md) §5. Companion:
   form — wrong shape = context lost, no error. Official docs: raw
   SubagentStart stdout is "shown to the user only; Claude doesn't see it".
   Use the JSON form uniformly on ALL events; don't special-case.
+- **Hook output over 10,000 characters is replaced by a preview + file path.**
+  Official docs (`/en/hooks`): "Hook output strings, including
+  `additionalContext`, `systemMessage`, and plain stdout, are capped at 10,000
+  characters. Output that exceeds this limit is saved to a file and replaced
+  with a preview and file path, the same way large tool results are handled."
+  Not truncation and not an error: an oversize ruleset reaches the model as a
+  pointer, silently, and no loud-marker invariant fires — those cover a MISSING
+  file, not one the platform swallows. Budget the whole JSON envelope, not the
+  ruleset file, and measure a CRLF checkout: escaped `\r\n` costs double on
+  Windows runners. A script-internal read cap (invariant 7 below; `flint.md`
+  §5.6) is a different guard and much looser; don't mistake one for the other.
 - **Compaction prunes injected context.** A SessionStart hook must re-fire on
   `compact` or the injected rules silently die mid-session (caveman
   `80a317e`). Empty matcher `''` = catch-all (startup|resume|clear|compact).

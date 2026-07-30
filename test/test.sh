@@ -1,6 +1,11 @@
 #!/bin/sh
-# flint test matrix — hook stdout contract + installer seam + derivado budgets.
+# flint test matrix — hook stdout contract + installer seam + character budgets.
 # Run from the repo root: sh test/test.sh   Every step must print its ok tag.
+#
+# `[ ... ]; ck $?` is deliberate throughout the budget block: ck consumes the
+# test's own status, which is exactly the value wanted. shellcheck 0.11+ flags
+# the shape generically.
+# shellcheck disable=SC2319
 set -u
 cd "$(dirname "$0")/.." || exit 1
 FAILS=0
@@ -51,8 +56,11 @@ fi
 # 9: oversize ruleset capped at 64 KB -> the real ruleset, capped, never the marker
 rm -f "$FX/flint.md"   # step 8's symlink: writing through it would FOLLOW it into /etc/hosts
 # Shell-built, not python-built: a native Windows python can't resolve Git
-# Bash's POSIX /tmp paths.
-{ printf '# flint\n'; yes x | tr -d '\n' | head -c 5242880; } > "$FX/flint.md" 2>/dev/null
+# Bash's POSIX /tmp paths. BOUNDED producer, deliberately: `yes x | tr | head`
+# hung the macOS runner for 6h (see AGENTS.md) — dd reaches EOF on its own, so
+# nothing here depends on SIGPIPE reaching a process the runner may have
+# shielded.
+{ printf '# flint\n'; dd if=/dev/zero bs=1024 count=5120 2>/dev/null | tr '\0' 'x'; } > "$FX/flint.md" 2>/dev/null
 sh "$FX/hooks/flint-style.sh" SessionStart | "$PY" -c 'import json,sys; c=json.load(sys.stdin)["hookSpecificOutput"]["additionalContext"]; assert len(c)<=65536 and "FLINT HOOK ERROR" not in c and c.lstrip().startswith("# flint")'
 ck $? "9 64KB cap"
 
@@ -78,10 +86,17 @@ ck $? "12 docs-first clauses"
 # strings (additionalContext AND plain stdout) at 10,000 CHARACTERS, and past
 # that swaps the text for a preview + file path. The ruleset would reach the
 # model as a pointer, with no FLINT HOOK ERROR — invariant #4 only covers a
-# missing file, not one the platform swallows. Measured on the real emitted
-# stdout, in bytes: bytes >= characters, so this guarantees the character cap.
-[ "$(sh hooks/flint-style.sh SessionStart | wc -c)" -le 9000 ]
-ck $? "13a hook stdout <= 9000 chars (10k platform cap)"
+# missing file, not one the platform swallows.
+#
+# Encodes THIS repo's flint.md rather than running the hook: the hook resolves
+# /etc/claude-docs/flint.md first, so on a container with a baked ruleset it
+# would measure the installed copy and pass while this repo's file is oversize.
+# Same envelope the hook prints (json.dumps, ensure_ascii -> chars == bytes,
+# +1 for the newline print appends), max over both full-ruleset events rather
+# than assuming they are interchangeable, binary read on stdin so a CRLF
+# checkout is counted as the Windows runner will emit it.
+[ "$("$PY" -c 'import json,sys; t=sys.stdin.buffer.read().decode("utf-8","replace"); print(max(len(json.dumps({"hookSpecificOutput":{"hookEventName":e,"additionalContext":t}}))+1 for e in ("SessionStart","SubagentStart")))' < flint.md)" -le 9000 ]
+ck $? "13a emitted envelope <= 9000 chars (10k platform cap)"
 [ "$(wc -c < desktop/chat/profile.md)" -le 1500 ]; ck $? "13b chat profile <= 1500"
 [ "$(wc -c < desktop/chat/project-instructions.md)" -le 8000 ]; ck $? "13c project instructions <= 8000"
 [ "$(wc -c < desktop/chat/style.md)" -le 8000 ]; ck $? "13d chat style <= 8000 (sanity)"

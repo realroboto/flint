@@ -24,9 +24,13 @@ shipped somewhere — upstream, or in this repo's own CI history.
   machinery (~1,141 lines of JS) was the bug factory (`docs/flint.md` §7).
 - **The ruleset's real ceiling is 10,000 CHARACTERS, not 64 KB.** Claude Code
   caps hook output strings there and past it swaps the text for a preview +
-  file path — the ruleset arrives as a pointer, no error, no loud marker.
-  `flint.md` sits at ~7.5 K; a new rule spends from ~1,200 characters of
-  headroom, not 58 KB. Test 13a is the guard.
+  file path — the ruleset arrives as a pointer, no error, no loud marker
+  (official docs `/en/hooks`; `docs/hook-engineering.md`). Budget the JSON
+  envelope, not `flint.md`: 7,458 chars of ruleset emit 7,801, and **8,107 on
+  a CRLF checkout** — every escaped `\r\n` costs double, and the Windows
+  runner checks out with `autocrlf`. Against test 13a's 9,000 guard a new rule
+  spends from **~893 characters**, not 58 KB. Quote the CRLF number; the LF
+  one passes locally and reds Windows.
 - **No matcher on any hook registration** — the empty matcher is what re-fires
   the ruleset after compact; a matcher kills the style mid-session silently.
 - **No raw stdout on SubagentStart** — silently dropped. All three events emit
@@ -49,7 +53,17 @@ shipped somewhere — upstream, or in this repo's own CI history.
 - **Native Windows python cannot resolve Git Bash POSIX paths** — a
   `python -c 'open("/tmp/...")'` fixture works on unix runners and throws
   `FileNotFoundError` on Windows. Build test fixtures with shell tools
-  (`printf`/`yes`/`head`), pass content via pipes, not paths.
+  (`printf`/`dd`/`tr`), pass content via pipes, not paths.
+- **Never put an UNBOUNDED producer in a fixture pipeline** — `yes x | tr -d
+  '\n' | head -c 5242880` hung `matrix (macos-latest)` for the full 6h Actions
+  timeout on every run from 2026-07-21 to 2026-07-29, while ubuntu, Windows and
+  shellcheck stayed green. The log stops after `ok  8 symlink refused`; cleanup
+  reports `Terminate orphan process: pid (1237) (tr)`. The runner ignores
+  `SIGPIPE` and children inherit it, so `tr` takes `EPIPE` instead of dying and
+  spins on `yes` forever. A developer Mac has the default disposition and
+  passes in under a second — this is CI-only. Use a bounded producer (`dd
+  if=/dev/zero count=N`) so every stage reaches EOF on its own. **A 6h
+  cancellation is a skipped test with no `(skipped: reason)` line printed.**
 - **`env -i` is not faithful on MSYS** — stripping SYSTEMROOT breaks process
   spawning entirely, so the "interpreter missing" probe false-fails. Gate
   such probes on `uname -s` (`MINGW*|MSYS*|CYGWIN*` → skip with an `ok …
