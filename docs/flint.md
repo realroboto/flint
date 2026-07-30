@@ -128,7 +128,10 @@ Every invariant is a fixed upstream bug. Breaking one reintroduces it.
 2. **Never read stdin.** Claude Code writes an event payload to the hook's
    stdin; ponytail read it and froze whole sessions (#443/#477). Event from
    argv only. The python stage reads from the `head -c` PIPE, not the hook's
-   stdin — keep it that way.
+   stdin — keep it that way. Test 6b asserts it: the hook must exit with stdin
+   held OPEN. A hook that waits for EOF is killed at the event timeout (caveman
+   #729) and emits nothing — invariant 4 cannot save it, because the script
+   never runs.
 3. **Whitelist `$1`.** Unknown value falls back to `SessionStart`. Never
    interpolate raw argv into the payload (JSON injection).
 4. **Loud marker on failure, never silent-empty.** caveman #587: a wrong
@@ -193,8 +196,8 @@ for full prose in plain language — which the ruleset itself honors.
 ## 8. Test matrix
 
 `sh test/test.sh` from the repo root — hook stdout contract (JSON per event,
-loud markers, argv whitelist, symlink refusal, 64 KB cap, EPIPE, shell
-syntax), the installer suite (`test/install_test.py`: registration,
+loud markers, argv whitelist, symlink refusal, 64 KB cap, EPIPE, stdin-open
+termination, shell syntax), the installer suite (`test/install_test.py`: registration,
 idempotency, re-pointing, foreign-hook preservation, no-clobber on invalid
 JSON), character budgets (emitted envelope ≤9,000 · profile ≤1,500 · project
 instructions ≤8,000), and the drift-canary token
