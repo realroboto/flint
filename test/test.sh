@@ -42,6 +42,21 @@ esac
 # 6: EPIPE -> exit 0
 sh hooks/flint-style.sh SessionStart 2>/dev/null | head -c 10 >/dev/null; ck $? "6 EPIPE exit 0"
 
+# 6b: stdin held OPEN must not block. Step 6 is the opposite case (stdout
+# closes early); this one is caveman #729 / ponytail #443 — a hook that works
+# inside stdin's `end` event never runs until the caller closes the pipe, and
+# Claude Code kills it at the event timeout. Nothing is injected and NO loud
+# marker fires, because the script never got to run. Invariant #2 (event from
+# argv, never stdin) asserted here, not merely documented.
+"$PY" -c 'import subprocess, sys
+p = subprocess.Popen(["sh", "hooks/flint-style.sh", "SessionStart"],
+                     stdin=subprocess.PIPE, stdout=subprocess.DEVNULL)
+try:
+    sys.exit(p.wait(timeout=5))
+except subprocess.TimeoutExpired:
+    p.kill(); sys.exit(1)'
+ck $? "6b stdin open -> no block"
+
 # 7: argv injection -> whitelisted to SessionStart, no injected JSON key
 sh hooks/flint-style.sh 'X","evil":"1' | "$PY" -c 'import json,sys; d=json.load(sys.stdin); assert d["hookSpecificOutput"]["hookEventName"]=="SessionStart"'; ck $? "7 argv whitelist"
 

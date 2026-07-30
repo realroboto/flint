@@ -56,7 +56,15 @@ flint-specific invariant list is [`docs/flint.md`](flint.md) §5. Companion:
 2. **Never read stdin.** Claude Code writes the event payload to hook stdin;
    ponytail read it and `stdin 'end' never fires` froze whole sessions
    (#443/#477). Take parameters from argv — one script, N events, event name
-   in `$1`, with a default for legacy registrations.
+   in `$1`, with a default for legacy registrations. Waiting on stdin EOF is
+   the same bug in slow motion: caveman #729 measured 48 of 2,076
+   `UserPromptSubmit` runs killed at the timeout — 2.3%, against 0.4% for the
+   sibling hook that reads no stdin — because the work sat in stdin's `end`
+   event. **A hook killed at the timeout emits no loud marker**: the script
+   never runs, so invariant 3 cannot fire. Assert termination with stdin held
+   OPEN, not just the EPIPE case; they are opposite failures. If you must read
+   a payload, act on the first complete parse and release stdin — do not exit
+   outright, or stdout truncates.
 3. **Loud marker on failure, never silent-empty.** caveman #587: a wrong
    relative path silently served a stale ruleset for months; #592: a missing
    binary coerced to success. On missing file/interpreter emit
