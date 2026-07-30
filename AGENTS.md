@@ -22,6 +22,11 @@ shipped somewhere — upstream, or in this repo's own CI history.
 - **No state. Ever.** No levels, flags, config files, slash commands, badges,
   or any sentence in `flint.md` implying an off-switch. Upstream's state
   machinery (~1,141 lines of JS) was the bug factory (`docs/flint.md` §7).
+- **The ruleset's real ceiling is 10,000 CHARACTERS, not 64 KB.** Claude Code
+  caps hook output strings there and past it swaps the text for a preview +
+  file path — the ruleset arrives as a pointer, no error, no loud marker.
+  `flint.md` sits at ~7.5 K; a new rule spends from ~1,200 characters of
+  headroom, not 58 KB. Test 13a is the guard.
 - **No matcher on any hook registration** — the empty matcher is what re-fires
   the ruleset after compact; a matcher kills the style mid-session silently.
 - **No raw stdout on SubagentStart** — silently dropped. All three events emit
