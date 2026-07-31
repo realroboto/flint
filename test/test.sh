@@ -124,8 +124,9 @@ ck $? "12 docs-first clauses"
 # would measure the installed copy and pass while this repo's file is oversize.
 # Same envelope the hook prints (json.dumps, ensure_ascii -> chars == bytes,
 # +1 for the newline print appends), max over both full-ruleset events rather
-# than assuming they are interchangeable, binary read on stdin so a CRLF
-# checkout is counted as the Windows runner will emit it.
+# than assuming they are interchangeable. The binary read on stdin stays as
+# belt-and-braces, but `.gitattributes` pins eol=lf so no checkout — the
+# Windows runner included — should be CRLF anymore.
 [ "$("$PY" -c 'import json,sys; t=sys.stdin.buffer.read().decode("utf-8","replace"); print(max(len(json.dumps({"hookSpecificOutput":{"hookEventName":e,"additionalContext":t}}))+1 for e in ("SessionStart","SubagentStart")))' < flint.md)" -le 9000 ]
 ck $? "13a emitted envelope <= 9000 chars (10k platform cap)"
 [ "$(wc -c < desktop/chat/profile.md)" -le 1500 ]; ck $? "13b chat profile <= 1500"

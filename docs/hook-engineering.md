@@ -29,7 +29,8 @@ flint-specific invariant list is [`docs/flint.md`](flint.md) §5. Companion:
   pointer, silently, and no loud-marker invariant fires — those cover a MISSING
   file, not one the platform swallows. Budget the whole JSON envelope, not the
   ruleset file, and measure a CRLF checkout: escaped `\r\n` costs double on
-  Windows runners. A script-internal read cap (invariant 7 below; `flint.md`
+  Windows runners — or pin `eol=lf` in `.gitattributes` and delete the class.
+  A script-internal read cap (invariant 7 below; `flint.md`
   §5.6) is a different guard and much looser; don't mistake one for the other.
 - **Compaction prunes injected context.** A SessionStart hook must re-fire on
   `compact` or the injected rules silently die mid-session (caveman
