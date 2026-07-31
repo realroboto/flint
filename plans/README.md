@@ -21,7 +21,7 @@ your row when done.
 | 001 | Loud marker on empty/unreadable ruleset, never silent-empty | P1 | S | — | DONE |
 | 002 | Pin LF via .gitattributes, reclaim the CRLF envelope tax | P1 | S | — | DONE |
 | 003 | Regenerate verbatim derivados by script + byte-parity test | P2 | M | 002 (soft) | DONE |
-| 004 | Execute the registered hook command end-to-end in tests | P2 | S | — | TODO |
+| 004 | Execute the registered hook command end-to-end in tests | P2 | S | — | DONE |
 | 005 | Docs: moved clone cannot produce FLINT HOOK ERROR | P3 | S | 001, 003 (wording only) | TODO |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) |

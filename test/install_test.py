@@ -3,6 +3,7 @@
 Run: python3 test/install_test.py  (expect: PASS)"""
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -78,6 +79,45 @@ def test_foreign_hooks_survive_install_and_uninstall():
         assert cfg['hooks']['SessionStart'] == [foreign]
         assert cfg['model'] == 'opus'
         assert flint_commands(cfg) == []
+
+
+def test_registered_command_executes_end_to_end():
+    # The seam real sessions take: settings.json command string -> bash ->
+    # hook. On Windows the command embeds a native C:\ path that Git Bash
+    # must parse inside the double quotes (caveman #157 class); asserting
+    # the string alone never exercised that translation.
+    if not shutil.which('bash'):
+        print('     (skipped: bash not on PATH)')
+        return
+    with tempfile.TemporaryDirectory() as d:
+        assert run_cli(d).returncode == 0
+        cfg = read_settings(d)
+        for event in install.EVENTS:
+            cmds = [c for e in cfg['hooks'][event]
+                    for c in [h['command'] for h in e['hooks']]
+                    if 'flint-style.sh' in c]
+            assert len(cmds) == 1
+            r = subprocess.run(['bash', '-c', cmds[0]], capture_output=True,
+                               text=True, timeout=15)
+            assert r.returncode == 0, (event, r.returncode, r.stderr)
+            out = json.loads(r.stdout)
+            assert out['hookSpecificOutput']['hookEventName'] == event
+            ctx = out['hookSpecificOutput']['additionalContext']
+            assert 'FLINT HOOK ERROR' not in ctx
+            if event == 'UserPromptSubmit':
+                assert ctx.startswith('FLINT ACTIVE')
+            else:
+                assert ctx.lstrip().startswith('# flint')
+
+
+def test_uninstall_py_wrapper_removes_entries():
+    with tempfile.TemporaryDirectory() as d:
+        run_cli(d)
+        env = dict(os.environ, CLAUDE_CONFIG_DIR=str(d))
+        r = subprocess.run([sys.executable, str(ROOT / 'uninstall.py')],
+                           env=env, capture_output=True, text=True)
+        assert r.returncode == 0
+        assert flint_commands(read_settings(d)) == []
 
 
 def test_default_home_branch_without_claude_config_dir():

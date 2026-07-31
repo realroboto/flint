@@ -203,7 +203,7 @@ for full prose in plain language — which the ruleset itself honors.
 loud markers, empty/unreadable ruleset markers, argv whitelist, symlink refusal, 64 KB cap, EPIPE, stdin-open
 termination, shell syntax), the installer suite (`test/install_test.py`: registration,
 idempotency, re-pointing, foreign-hook preservation, no-clobber on invalid
-JSON), character budgets (emitted envelope ≤9,000 · profile ≤1,500 · project
+JSON, end-to-end execution of the registered command through bash), character budgets (emitted envelope ≤9,000 · profile ≤1,500 · project
 instructions ≤8,000), and byte parity of the verbatim derivados against
 `header + unwrap(flint.md)` (`tools/resync.py --check`). CI runs the matrix
 on ubuntu/macos/windows + shellcheck; the Windows runner exercises the Git
