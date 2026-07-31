@@ -11,11 +11,13 @@
 > If any in-scope file changed since this plan was written, compare the
 > "Current state" excerpts against the live code before proceeding; on a
 > mismatch, treat it as a STOP condition.
-> Known drift, already accounted for: merges `5875127` (#7) and `244ff05`
-> (#8) touched `test/test.sh` (9b/9c block; 13a comment) and `docs/flint.md`
-> (§3/§5/§8/§9) — all AFTER or OUTSIDE the regions this plan cites: test 7 at
-> `test/test.sh:60-61`, `"$PY"` at `:13`, and §8's installer-suite
-> parenthetical are unchanged.
+> Known drift, already accounted for: merges `5875127` (#7), `244ff05` (#8)
+> and `14e9cb4` (#9) touched `test/test.sh` (9b/9c block; 13a comment; test 14
+> body), `docs/flint.md` (§3/§5/§8/§9) and `tools/` — all AFTER or OUTSIDE the
+> regions this plan cites: test 7 at `test/test.sh:60-61`, `"$PY"` at `:13`,
+> and §8's installer-suite parenthetical ("registration, idempotency,
+> re-pointing, foreign-hook preservation, no-clobber on invalid JSON", now at
+> `docs/flint.md:204-206`) are unchanged.
 
 ## Status
 
