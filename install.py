@@ -35,7 +35,10 @@ def hook_specs(hook=HOOK):
     the shell (caveman #157 class)."""
     specs = []
     for event in EVENTS:
-        cmd = '"{}" {}'.format(hook, event)
+        # Forward slashes: valid Windows path form, inert in double-quoted
+        # shell text, no-op on POSIX. Git Bash rejects native backslashes
+        # inside the quotes (rc 1 on the executed command).
+        cmd = '"{}" {}'.format(str(hook).replace('\\', '/'), event)
         specs.append((event,
                       {'matcher': '', 'hooks': [{'type': 'command', 'command': cmd,
                                                  'timeout': 10,

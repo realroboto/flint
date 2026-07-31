@@ -42,7 +42,8 @@ def test_install_registers_3_events_with_quoted_path_and_event_argv():
         for event in install.EVENTS:
             cmds = [c for e in cfg['hooks'][event] for c in
                     [h['command'] for h in e['hooks']] if 'flint-style.sh' in c]
-            assert cmds == ['"{}" {}'.format(install.HOOK, event)]
+            assert cmds == ['"{}" {}'.format(
+                str(install.HOOK).replace('\\', '/'), event)]
             assert cfg['hooks'][event][0]['matcher'] == ''  # re-fires on compact
 
 

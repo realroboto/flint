@@ -79,7 +79,9 @@ compact re-fire the style silently dies mid-session.
 Windows: Claude Code runs shell-form hooks via **Git Bash** when installed
 (PowerShell only as fallback) — flint requires Git Bash and keeps a single sh
 implementation. The installer quotes the hook path (`"<path>" <Event>`) so a
-clone under a path with spaces survives the shell.
+clone under a path with spaces survives the shell, and writes it with forward
+slashes because Git Bash treats backslashes inside the double quotes as
+escape-prone (a native `C:\` path executes at rc 1).
 
 ## 4. The ruleset (flint.md) — structure and provenance
 
