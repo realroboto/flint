@@ -60,6 +60,9 @@ ck $? "6b stdin open -> no block"
 # 7: argv injection -> whitelisted to SessionStart, no injected JSON key
 sh hooks/flint-style.sh 'X","evil":"1' | "$PY" -c 'import json,sys; d=json.load(sys.stdin); assert d["hookSpecificOutput"]["hookEventName"]=="SessionStart"'; ck $? "7 argv whitelist"
 
+# 7b: no argv (a legacy registration) -> defaults to SessionStart
+sh hooks/flint-style.sh | "$PY" -c 'import json,sys; assert json.load(sys.stdin)["hookSpecificOutput"]["hookEventName"]=="SessionStart"'; ck $? "7b no-arg default"
+
 # 8: symlinked fallback refused (skipped where ln -s cannot make real symlinks)
 ln -sf /etc/hosts "$FX/flint.md" 2>/dev/null
 if [ -L "$FX/flint.md" ]; then
