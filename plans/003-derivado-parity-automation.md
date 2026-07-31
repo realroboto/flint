@@ -12,6 +12,9 @@
 > "Current state" excerpts against the live code before proceeding; on a
 > mismatch, treat it as a STOP condition. A changed `flint.md` in particular
 > means the parity baseline moved — STOP.
+> Known drift, already accounted for: merge `5875127` (ticket #7) added the
+> 9b/9c block to `test/test.sh` and text to `docs/flint.md` §3/§5/§8 — line
+> numbers below are post-#7; `flint.md` and the derivados are untouched.
 
 ## Status
 
@@ -84,7 +87,7 @@ shrinks; the drift class dies.
   ---
   ```
 
-- `test/test.sh:120-123` — the current (weak) guard to be replaced:
+- `test/test.sh:136-139` — the current (weak) guard to be replaced:
 
   ```sh
   # 14: verbatim-derivado canary — both full-ruleset derivados carry the token
@@ -111,7 +114,7 @@ shrinks; the drift class dies.
   code 3.6-compatible — no `newline=` kwarg on `Path.write_text`, no walrus).
 - Repo code conventions: stdlib only, docstring at top, terse comments only
   where a constraint is invisible (see `install.py` as the exemplar).
-- Test 12 (`test/test.sh:91-94`) greps the same canary token in the **hook
+- Test 12 (`test/test.sh:107-110`) greps the same canary token in the **hook
   output** — that test is about the ruleset/anchor, not derivados; leave it.
 
 ## Commands you will need
@@ -253,7 +256,7 @@ if __name__ == '__main__':
 
 ### Step 3: Replace test 14 with the parity check
 
-In `test/test.sh:120-123`, replace the two-grep body:
+In `test/test.sh:136-139`, replace the two-grep body:
 
 ```sh
 # 14: verbatim derivados byte-identical to header + unwrap(flint.md) —
@@ -304,7 +307,7 @@ Machine-checkable. ALL must hold:
 - [ ] `python3 tools/resync.py --check` exits 0
 - [ ] `python3 tools/resync.py; git diff --exit-code desktop/` exits 0 (no-op regeneration)
 - [ ] `sh test/test.sh` exits 0, ends `ALL PASS`, prints `ok  14 verbatim derivado parity`
-- [ ] `grep -c 'once per lib per session' test/test.sh` prints `2` (test 12's two lines only — `test/test.sh:91-92`; test 14's greps gone)
+- [ ] `grep -c 'once per lib per session' test/test.sh` prints `2` (test 12's two lines only — `test/test.sh:107-108`; test 14's greps gone)
 - [ ] `git diff --stat` touches only: `tools/unwrap.py`, `tools/resync.py`, `test/test.sh`, `desktop/README.md`, `AGENTS.md`, `docs/flint.md`, `plans/README.md`
 - [ ] `desktop/chat/project-instructions.md` and `desktop/cowork/SKILL.md` are byte-identical to their state at your starting commit (`git diff --exit-code desktop/chat/project-instructions.md desktop/cowork/SKILL.md`)
 - [ ] `plans/README.md` status row updated

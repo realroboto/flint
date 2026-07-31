@@ -11,6 +11,9 @@
 > If any in-scope file changed since this plan was written, compare the
 > "Current state" excerpts against the live code before proceeding; on a
 > mismatch, treat it as a STOP condition.
+> Known drift, already accounted for: merge `5875127` (ticket #7) touched
+> `docs/flint.md` (§3/§5/§8 text) and `test/test.sh` (new 9b/9c block) — the
+> line numbers below are post-#7; the quoted passages are unchanged.
 
 ## Status
 
@@ -70,7 +73,7 @@ checkout-side change with zero content churn.
   checks out with `autocrlf`.
 ```
 
-`test/test.sh:99-114` — test 13a's comment block ends with:
+`test/test.sh:112-127` — test 13a's comment block ends with:
 
 ```
 # ... binary read on stdin so a CRLF checkout is counted as the Windows runner

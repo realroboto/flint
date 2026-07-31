@@ -47,12 +47,13 @@ map omits `tools/`.
 ## Current state
 
 - `hooks/flint-style.sh` — ground truth for what the marker means. The marker
-  is emitted by `emit_marker` only in three situations: ruleset not found at
-  any of `/etc/claude-docs/flint.md`, `../flint.md`, `../container-docs/flint.md`
-  (line 57); no python on PATH (line 65); encode-stage failure (line 76). The
-  script must exist and run for any of these to print. If plan 001 landed,
-  "not found" became "not found (or empty)" and the encode failure covers
-  unreadable files — check `grep -n 'or empty' hooks/flint-style.sh`.
+  is emitted by `emit_marker` only in three situations: ruleset not found (or
+  empty) at any of `/etc/claude-docs/flint.md`, `../flint.md`,
+  `../container-docs/flint.md` (line 59); no python on PATH (line 67);
+  encode-stage failure — empty/unreadable read or a python2 `python` (line 80).
+  The script must exist and run for any of these to print. Plan 001 landed in
+  merge `5875127`; `grep -q 'or empty' hooks/flint-style.sh` succeeds, so every
+  "(or empty)" wording variant below applies unconditionally.
 - `README.md:46-47`:
 
   ```
@@ -123,8 +124,8 @@ instead (the registered path no longer exists) — re-run `./install.sh` from
 the clone's new location to re-point it.
 ```
 
-If plan 001 landed (`grep -q 'or empty' hooks/flint-style.sh` succeeds),
-write "missing (or empty) at every known path" in the first cause.
+Plan 001 landed — write "missing (or empty) at every known path" in the
+first cause.
 
 **Verify**: `grep -n 'moved clone or missing' README.md` → no match;
 `grep -n 'hook error' README.md` → the new sentence present.
@@ -142,7 +143,7 @@ Claude Code's own hook error instead — re-run `./install.sh` from the new
 location.
 ```
 
-(Same conditional: "missing/empty" if plan 001 landed.)
+(Same: write "missing/empty" — plan 001 landed.)
 
 **Verify**: `grep -n 'the clone moved' desktop/README.md` → no match.
 
