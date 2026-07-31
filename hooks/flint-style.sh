@@ -15,8 +15,10 @@
 # - Always exit 0. Non-zero surfaces as a hook failure banner every turn
 #   (caveman #538); EPIPE on closed stdout must not kill us (ponytail #149).
 # - Never read stdin (ponytail #443: stdin 'end' never fires, session froze).
-# - All ruleset paths missing → LOUD marker, never silent-empty context
-#   (caveman #587: bad path fell back to a stale ruleset in silence).
+# - All ruleset paths missing, empty, or unreadable → LOUD marker, never
+#   silent-empty context (caveman #587: bad path fell back to a stale ruleset
+#   in silence). `-s` rejects a 0-byte file; the encode stage exits into the
+#   marker on empty read (EACCES, delete-after-check race).
 # - python absent → same loud marker path, built with printf only
 #   (ponytail #57-class: hooks run under non-interactive /bin/sh, narrow PATH).
 # - Fallback paths are user-writable → refuse symlinks (caveman 5ad8f6d: a
@@ -47,14 +49,14 @@ emit_marker() {
 # then the vmCODE vendored geometry (scripts/ + container-docs/). The baked
 # path is root-owned; both fallbacks are user-writable, so symlinks refused.
 RULESET='/etc/claude-docs/flint.md'
-if [ ! -f "$RULESET" ]; then
+if [ ! -s "$RULESET" ]; then
     DIR="$(dirname "$0" 2>/dev/null)"
-    if [ -f "$DIR/../flint.md" ] && [ ! -L "$DIR/../flint.md" ]; then
+    if [ -s "$DIR/../flint.md" ] && [ ! -L "$DIR/../flint.md" ]; then
         RULESET="$DIR/../flint.md"
-    elif [ -f "$DIR/../container-docs/flint.md" ] && [ ! -L "$DIR/../container-docs/flint.md" ]; then
+    elif [ -s "$DIR/../container-docs/flint.md" ] && [ ! -L "$DIR/../container-docs/flint.md" ]; then
         RULESET="$DIR/../container-docs/flint.md"
     else
-        emit_marker 'ruleset not found at /etc/claude-docs/flint.md, ../flint.md, or ../container-docs/flint.md'
+        emit_marker 'ruleset not found (or empty) at /etc/claude-docs/flint.md, ../flint.md, or ../container-docs/flint.md'
     fi
 fi
 
@@ -69,9 +71,11 @@ PYBIN="$(command -v python3 2>/dev/null || command -v python 2>/dev/null)"
 head -c 65536 "$RULESET" 2>/dev/null | "$PYBIN" -c '
 import json, sys
 txt = sys.stdin.buffer.read().decode("utf-8", "replace")
+if not txt.strip():
+    sys.exit(3)
 print(json.dumps({"hookSpecificOutput": {
     "hookEventName": sys.argv[1],
     "additionalContext": txt,
 }}))
-' "$EVENT" 2>/dev/null || emit_marker 'python JSON encoding failed'
+' "$EVENT" 2>/dev/null || emit_marker 'ruleset unreadable, empty, or JSON encoding failed'
 exit 0
