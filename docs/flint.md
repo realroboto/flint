@@ -27,6 +27,7 @@ plugins had produced real bugs (see §7). Do not add state back.
 | `hooks/flint-style.sh` | The hook (the delivery) |
 | `install.py` / `install.sh` / `install.ps1` / `uninstall.py` | Registration in `settings.json` (idempotent, re-pointing, atomic writes) |
 | `desktop/` | Derivados for the hook-less Claude Desktop surfaces (→ `desktop/README.md`) |
+| `tools/unwrap.py` / `tools/resync.py` | Derivado tooling: unwrap paragraph hard-wraps; regenerate + verify the verbatim derivados |
 | `test/test.sh` + `test/install_test.py` | The full matrix (§8) |
 | `docs/flint.md` | This file |
 
@@ -80,8 +81,8 @@ Windows: Claude Code runs shell-form hooks via **Git Bash** when installed
 (PowerShell only as fallback) — flint requires Git Bash and keeps a single sh
 implementation. The installer quotes the hook path (`"<path>" <Event>`) so a
 clone under a path with spaces survives the shell, and writes it with forward
-slashes because Git Bash treats backslashes inside the double quotes as
-escape-prone (a native `C:\` path executes at rc 1).
+slashes — the one form every parser on the Windows path (Git Bash, native
+Python, Claude Code) reads unambiguously.
 
 ## 4. The ruleset (flint.md) — structure and provenance
 

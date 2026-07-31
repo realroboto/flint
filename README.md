@@ -43,8 +43,13 @@ after moving the clone re-points the paths.
   removes exactly the 3 flint entries, touches nothing else.
 - **Verify**: `sh test/test.sh` (also run by CI on Linux/macOS/Windows).
 
-A session showing `FLINT HOOK ERROR: …` means a moved clone or missing
-Python — the failure is loud by design, never a silent stale ruleset.
+Failures are loud by design, never a silent stale ruleset — but they have
+two surfaces. `FLINT HOOK ERROR: …` in-session means the hook ran and could
+not deliver: `flint.md` missing (or empty) at every known path, or
+`python3`/`python` absent or unusable (a python2 `python` fails the encode
+into the same marker). A moved or deleted clone shows up as Claude Code's
+own hook error instead (the registered path no longer exists) — re-run
+`./install.sh` from the clone's new location to re-point it.
 
 ## Claude Desktop (Chat / Cowork / Code)
 
