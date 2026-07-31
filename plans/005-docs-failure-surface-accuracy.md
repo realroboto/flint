@@ -18,7 +18,9 @@
 > checklist (NOT its Code section), `AGENTS.md`, and added `tools/resync.py`.
 > None touched this plan's README sentences or the §2 file map. Plans 001 and
 > 003 have BOTH landed — every conditional below resolves to its landed
-> branch.
+> branch. Later merges `1f1e84c` (#16) and `c064958` (#18) changed
+> `install.py`, `test/install_test.py` and `docs/flint.md` §3's Windows
+> paragraph — Step 3b below corrects an overclaim `1f1e84c` introduced there.
 
 ## Status
 
@@ -99,7 +101,8 @@ map omits `tools/`.
 **In scope** (the only files you should modify):
 - `README.md` (the two-line troubleshooting sentence)
 - `desktop/README.md` (the Code-section troubleshooting sentence)
-- `docs/flint.md` (§2 file map — one row)
+- `docs/flint.md` (§2 file map — one row; §3 Windows paragraph — correct one
+  falsified claim, Step 3b)
 
 **Out of scope** (do NOT touch):
 - `hooks/flint-style.sh` — docs follow code, never the reverse here.
@@ -162,6 +165,19 @@ Plan 003 landed — use:
 `| `tools/unwrap.py` / `tools/resync.py` | Derivado tooling: unwrap paragraph hard-wraps; regenerate + verify the verbatim derivados |`
 
 **Verify**: `grep -n 'tools/unwrap.py' docs/flint.md` → one match in §2.
+
+### Step 3b: Correct the falsified Git Bash claim in §3
+
+Merge `1f1e84c` added to the §3 Windows paragraph: "and writes it with forward
+slashes because Git Bash treats backslashes inside the double quotes as
+escape-prone (a native `C:\` path executes at rc 1)". The rc 1 attribution was
+falsified by #18 — the failure was the System32 WSL bash stub, not Git Bash;
+Git Bash was never shown to mishandle the backslash form. Replace that clause
+with the honest rationale, e.g.: "and writes it with forward slashes — the one
+form every parser on the Windows path (Git Bash, native Python, Claude Code)
+reads unambiguously." Keep the spaces-in-path sentence around it intact.
+
+**Verify**: `grep -c 'escape-prone' docs/flint.md` → `0`; `grep -n 'forward' docs/flint.md` → the corrected sentence.
 
 ### Step 4: Sweep for residual conflation
 
