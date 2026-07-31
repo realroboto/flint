@@ -64,8 +64,8 @@ Ruleset resolution order inside the script:
 1. `/etc/claude-docs/flint.md` — baked container path (root-owned).
 2. `"$(dirname "$0")/../flint.md"` — this repo's clone geometry.
 3. `"$(dirname "$0")/../container-docs/flint.md"` — the vmCODE vendored geometry.
-4. None exists → **loud error marker** as `additionalContext`
-   (`FLINT HOOK ERROR: ...`) and exit 0. Never silent-empty.
+4. None exists (or the file is empty/unreadable) → **loud error marker** as
+   `additionalContext` (`FLINT HOOK ERROR: ...`) and exit 0. Never silent-empty.
 
 Fallbacks 2–3 are user-writable → symlinks refused (§5.5). JSON encoding via
 `python3` (or `python` — Windows Git Bash often ships only that name; a
@@ -136,7 +136,11 @@ Every invariant is a fixed upstream bug. Breaking one reintroduces it.
    interpolate raw argv into the payload (JSON injection).
 4. **Loud marker on failure, never silent-empty.** caveman #587: a wrong
    relative path silently served a stale ruleset for months. Missing ruleset
-   and missing python must emit `FLINT HOOK ERROR: …` in-session.
+   and missing python must emit `FLINT HOOK ERROR: …` in-session. Empty or
+   unreadable counts as failure too: resolution uses `-s` (not `-f`), and the
+   encode stage exits into the marker on empty input, so a 0-byte file, an
+   `EACCES` read, or a delete-after-check race all produce the marker instead
+   of empty context.
 5. **Refuse symlinked fallbacks.** The clone paths are user-writable; caveman
    `5ad8f6d`: a symlinked read injected secret-file bytes into model context.
    The `/etc` path is root-owned — only the fallbacks need `[ -L ]`.
@@ -196,7 +200,7 @@ for full prose in plain language — which the ruleset itself honors.
 ## 8. Test matrix
 
 `sh test/test.sh` from the repo root — hook stdout contract (JSON per event,
-loud markers, argv whitelist, symlink refusal, 64 KB cap, EPIPE, stdin-open
+loud markers, empty/unreadable ruleset markers, argv whitelist, symlink refusal, 64 KB cap, EPIPE, stdin-open
 termination, shell syntax), the installer suite (`test/install_test.py`: registration,
 idempotency, re-pointing, foreign-hook preservation, no-clobber on invalid
 JSON), character budgets (emitted envelope ≤9,000 · profile ≤1,500 · project

@@ -79,6 +79,22 @@ rm -f "$FX/flint.md"   # step 8's symlink: writing through it would FOLLOW it in
 sh "$FX/hooks/flint-style.sh" SessionStart | "$PY" -c 'import json,sys; c=json.load(sys.stdin)["hookSpecificOutput"]["additionalContext"]; assert len(c)<=65536 and "FLINT HOOK ERROR" not in c and c.lstrip().startswith("# flint")'
 ck $? "9 64KB cap"
 
+# 9b: EMPTY ruleset -> loud marker. `-f` passed a 0-byte file; `-s` must not.
+: > "$FX/flint.md"
+sh "$FX/hooks/flint-style.sh" SessionStart | grep -q 'FLINT HOOK ERROR'; ck $? "9b empty ruleset -> loud marker"
+
+# 9c: UNREADABLE ruleset -> loud marker (the -s stat passes, the read fails).
+# Skip where chmod 000 cannot actually revoke read: MSYS fakes POSIX modes,
+# and root reads through 000.
+printf '# flint\n' > "$FX/flint.md"
+chmod 000 "$FX/flint.md" 2>/dev/null
+if [ -r "$FX/flint.md" ]; then
+    echo "ok  9c unreadable ruleset -> loud marker (skipped: chmod cannot revoke read here)"
+else
+    sh "$FX/hooks/flint-style.sh" SessionStart | grep -q 'FLINT HOOK ERROR'; ck $? "9c unreadable ruleset -> loud marker"
+fi
+chmod 644 "$FX/flint.md" 2>/dev/null
+
 # 10: shell syntax (zsh only where present)
 bash -n hooks/flint-style.sh && sh -n hooks/flint-style.sh; ck $? "10 bash/sh syntax"
 if command -v zsh >/dev/null 2>&1; then zsh -n hooks/flint-style.sh; ck $? "10b zsh syntax"; fi
