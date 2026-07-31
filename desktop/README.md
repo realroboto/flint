@@ -14,8 +14,10 @@ failure marker) exists ONLY where hooks run.
 ## Code
 
 Run the installer. The Code tab reads the same `settings.json` as the CLI —
-no extra steps. If a session ever shows `FLINT HOOK ERROR`, the clone moved
-or Python left the PATH; re-run `./install.sh`.
+no extra steps. `FLINT HOOK ERROR` in a session means the hook ran but could
+not deliver (ruleset missing/empty, or Python absent/unusable). A moved clone
+surfaces as Claude Code's own hook error instead — re-run `./install.sh` from
+the new location.
 
 ## Chat
 
