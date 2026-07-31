@@ -14,6 +14,27 @@ sys.path.insert(0, str(ROOT))
 import install  # noqa: E402
 
 
+def _find_bash():
+    # Resolve the bash the platform contract names (ADR 0002: Git Bash), not
+    # whatever PATH finds first. On Windows runners bare `bash` resolves to the
+    # System32 WSL stub, which with no distro fails this probe; Git Bash passes.
+    candidates = [shutil.which('bash')]
+    for v in ('ProgramFiles', 'ProgramFiles(x86)'):
+        if os.environ.get(v):
+            candidates.append(os.path.join(os.environ[v], 'Git', 'bin', 'bash.exe'))
+    for c in candidates:
+        if not c:
+            continue
+        try:
+            r = subprocess.run([c, '-c', 'echo flint-probe'],
+                               capture_output=True, text=True, timeout=15)
+        except (OSError, subprocess.TimeoutExpired):
+            continue
+        if r.stdout.strip() == 'flint-probe':
+            return c
+    return None
+
+
 def run_cli(config_dir, *args):
     env = dict(os.environ, CLAUDE_CONFIG_DIR=str(config_dir))
     return subprocess.run([sys.executable, str(ROOT / 'install.py'), *args],
@@ -87,8 +108,9 @@ def test_registered_command_executes_end_to_end():
     # hook. On Windows the command embeds a native C:\ path that Git Bash
     # must parse inside the double quotes (caveman #157 class); asserting
     # the string alone never exercised that translation.
-    if not shutil.which('bash'):
-        print('     (skipped: bash not on PATH)')
+    bash = _find_bash()
+    if not bash:
+        print('     (skipped: no working bash found)')
         return
     with tempfile.TemporaryDirectory() as d:
         assert run_cli(d).returncode == 0
@@ -98,9 +120,9 @@ def test_registered_command_executes_end_to_end():
                     for c in [h['command'] for h in e['hooks']]
                     if 'flint-style.sh' in c]
             assert len(cmds) == 1
-            r = subprocess.run(['bash', '-c', cmds[0]], capture_output=True,
+            r = subprocess.run([bash, '-c', cmds[0]], capture_output=True,
                                text=True, timeout=15)
-            assert r.returncode == 0, (event, r.returncode, r.stderr)
+            assert r.returncode == 0, (event, r.returncode, r.stderr, r.stdout)
             out = json.loads(r.stdout)
             assert out['hookSpecificOutput']['hookEventName'] == event
             ctx = out['hookSpecificOutput']['additionalContext']
