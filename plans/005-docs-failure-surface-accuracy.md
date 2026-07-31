@@ -10,8 +10,12 @@
 > **Drift check (run first)**: `git diff --stat 22a6af7..HEAD -- README.md desktop/README.md docs/flint.md hooks/flint-style.sh`
 > If any in-scope file changed since this plan was written, compare the
 > "Current state" excerpts against the live text before proceeding; on a
-> mismatch, treat it as a STOP condition. In particular, check whether plans
-> 001 and 003 have landed — two wording choices below depend on that.
+> mismatch, treat it as a STOP condition. In particular, check whether plan
+> 003 has landed — the file-map wording below depends on it.
+> Known drift, already accounted for: merge `5875127` (#7) changed
+> `hooks/flint-style.sh` (marker causes — excerpts below already updated) and
+> `docs/flint.md` §3/§5/§8; merge `244ff05` (#8) changed `docs/flint.md` §9.
+> Neither touched this plan's README sentences or the §2 file map.
 
 ## Status
 

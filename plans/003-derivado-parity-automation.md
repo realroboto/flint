@@ -13,8 +13,10 @@
 > mismatch, treat it as a STOP condition. A changed `flint.md` in particular
 > means the parity baseline moved — STOP.
 > Known drift, already accounted for: merge `5875127` (ticket #7) added the
-> 9b/9c block to `test/test.sh` and text to `docs/flint.md` §3/§5/§8 — line
-> numbers below are post-#7; `flint.md` and the derivados are untouched.
+> 9b/9c block to `test/test.sh` and text to `docs/flint.md` §3/§5/§8; merge
+> `244ff05` (ticket #8) reworded the 13a comment (net +1 line) and the
+> AGENTS.md 10k bullet. Line numbers below are post-#8; `flint.md` and the
+> derivados are untouched — the parity baseline holds.
 
 ## Status
 
@@ -87,7 +89,7 @@ shrinks; the drift class dies.
   ---
   ```
 
-- `test/test.sh:136-139` — the current (weak) guard to be replaced:
+- `test/test.sh:137-140` — the current (weak) guard to be replaced:
 
   ```sh
   # 14: verbatim-derivado canary — both full-ruleset derivados carry the token
@@ -106,8 +108,9 @@ shrinks; the drift class dies.
   - [ ] `cowork/SKILL.md` — regenerate (frontmatter + verbatim ruleset)
   ```
 
-- `AGENTS.md:45-49` ("No hand-edits to derivados") ends with "(budget guards
-  + canary token enforce part of it)".
+- `AGENTS.md:46-50` ("No hand-edits to derivados") ends with "(budget guards
+  + canary token enforce part of it)" — note the phrase hard-wraps across two
+  lines in the file.
 - `docs/flint.md` §8 mentions "the drift-canary token `once per lib per
   session` across the verbatim derivados".
 - Python floor: 3.6 (`install.py` enforces it for the installer; keep new
@@ -256,7 +259,7 @@ if __name__ == '__main__':
 
 ### Step 3: Replace test 14 with the parity check
 
-In `test/test.sh:136-139`, replace the two-grep body:
+In `test/test.sh:137-140`, replace the two-grep body:
 
 ```sh
 # 14: verbatim derivados byte-identical to header + unwrap(flint.md) —
@@ -278,7 +281,7 @@ In `test/test.sh:136-139`, replace the two-grep body:
   regenerating "by copying the ruleset in, then `python3 tools/unwrap.py
   <file>`" (`desktop/README.md:65-67`) — that manual route applies now only
   to the hand-derived artifacts; the verbatim two go through `resync.py`.
-- `AGENTS.md:48-49`: change the parenthetical "(budget guards + canary token
+- `AGENTS.md:49-50`: change the parenthetical "(budget guards + canary token
   enforce part of it)" to reference the byte-parity test — for example
   "(budget guards + test 14's byte parity enforce the verbatim ones)".
 - `docs/flint.md` §8: replace "and the drift-canary token `once per lib per
