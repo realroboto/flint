@@ -49,8 +49,9 @@ def unwrap(text):
     return "\n".join(out)
 
 
-for path in sys.argv[1:]:
-    with open(path) as fh:
-        src = fh.read()
-    with open(path, "w") as fh:
-        fh.write(unwrap(src))
+if __name__ == "__main__":
+    for path in sys.argv[1:]:
+        with open(path, encoding="utf-8") as fh:
+            src = fh.read()
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write(unwrap(src))

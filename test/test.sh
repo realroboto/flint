@@ -134,10 +134,10 @@ ck $? "13a emitted envelope <= 9000 chars (10k platform cap)"
 [ "$(wc -c < desktop/chat/style.md)" -le 8000 ]; ck $? "13d chat style <= 8000 (sanity)"
 [ "$(wc -c < desktop/cowork/SKILL.md)" -le 65536 ]; ck $? "13f cowork skill <= 64KB (sanity)"
 
-# 14: verbatim-derivado canary — both full-ruleset derivados carry the token
-grep -q 'once per lib per session' desktop/cowork/SKILL.md \
-  && grep -q 'once per lib per session' desktop/chat/project-instructions.md
-ck $? "14 verbatim derivado canary"
+# 14: verbatim derivados byte-identical to header + unwrap(flint.md) —
+# byte parity subsumes the old canary-token grep (the token is in flint.md,
+# and test 12 already asserts it reaches the hook output).
+"$PY" tools/resync.py --check; ck $? "14 verbatim derivado parity"
 
 rm -rf "$FX"
 if [ "$FAILS" -eq 0 ]; then echo "ALL PASS"; else echo "FAILURES: $FAILS"; exit 1; fi
