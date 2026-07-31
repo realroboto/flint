@@ -47,7 +47,7 @@ shipped somewhere — upstream, or in this repo's own CI history.
   `desktop/cowork/SKILL.md` are REGENERATED (header + verbatim ruleset);
   the others are re-derived via the checklist in `desktop/README.md`. Ruleset
   changed → run the whole checklist, then `sh test/test.sh` (budget guards +
-  canary token enforce part of it).
+  test 14's byte parity via `tools/resync.py --check` enforce the verbatim ones).
 
 ## CI traps already hit in this repo (don't re-learn them)
 
