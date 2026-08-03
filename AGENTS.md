@@ -26,12 +26,12 @@ shipped somewhere — upstream, or in this repo's own CI history.
   caps hook output strings there and past it swaps the text for a preview +
   file path — the ruleset arrives as a pointer, no error, no loud marker
   (official docs `/en/hooks`; `docs/hook-engineering.md`). Budget the JSON
-  envelope, not `flint.md`: 7,458 chars of ruleset emit 7,801 on LF. NEUTRALIZED
+  envelope, not `flint.md`: 7,731 chars of ruleset emit 8,089 on LF. NEUTRALIZED
   — `.gitattributes` pins `eol=lf` on every checkout, the Windows runner
-  included, so the CRLF double-cost (8,107; each escaped `\r\n` counts twice) is
-  dead as long as the pin stays; delete `.gitattributes` and ~306 chars of
+  included, so the CRLF double-cost (8,405; each escaped `\r\n` counts twice) is
+  dead as long as the pin stays; delete `.gitattributes` and ~316 chars of
   Windows-only spend reopen, which no local LF run will catch. Against test
-  13a's 9,000 guard a new rule now spends from **~1,199 characters**, not 58 KB.
+  13a's 9,000 guard a new rule now spends from **~911 characters**, not 58 KB.
 - **No matcher on any hook registration** — the empty matcher is what re-fires
   the ruleset after compact; a matcher kills the style mid-session silently.
 - **No raw stdout on SubagentStart** — silently dropped. All three events emit
