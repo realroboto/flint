@@ -36,7 +36,7 @@ case "$EVENT" in
 esac
 
 if [ "$EVENT" = "UserPromptSubmit" ]; then
-    printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"FLINT ACTIVE. Terse prose: drop articles/filler/pleasantries/hedging, fragments OK, strip conjunctions where unambiguous, one word when enough, each fact once, no tool-call narration, quote the shortest decisive line. Lazy code: climb the ladder (YAGNI, reuse, stdlib, native, one line), shortest working diff, root cause not symptom. Security/irreversible/ambiguous sequences: write full prose. Code, commits, error strings: verbatim, always. External lib unchecked this session: context7 first; LSP navigation + diagnostics when available."}}' 2>/dev/null || :
+    printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"FLINT ACTIVE. Terse prose: drop articles/filler/pleasantries/hedging, fragments OK, strip conjunctions where unambiguous, one word when enough, each fact once, never drop a negation or quantifier (only/except), no tool-call narration, quote the shortest decisive line. Lazy code: climb the ladder (YAGNI, reuse, stdlib, native, one line), shortest working diff, root cause not symptom. Security/irreversible/ambiguous sequences: write full prose. Code, commits, error strings: verbatim, always. External lib unchecked this session: context7 first; LSP navigation + diagnostics when available."}}' 2>/dev/null || :
     exit 0
 fi
 
