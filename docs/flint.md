@@ -226,9 +226,9 @@ Bash path.
   and the real ceiling on `flint.md`. Over it, the ruleset is replaced by a
   preview + file path and reaches the model as a pointer, silently, with no
   loud marker (official docs `/en/hooks`). Test 13a guards the JSON envelope at
-  9,000: 7,801 on every checkout now that `.gitattributes` pins `eol=lf` (the
-  8,107 CRLF figure was the pre-pin Windows number, when each escaped `\r\n`
-  cost double), so quote **~1,199 characters** of headroom. (`head -c 65536` in
+  9,000: 8,089 on every checkout now that `.gitattributes` pins `eol=lf` (the
+  8,405 CRLF figure was the pre-pin Windows number, when each escaped `\r\n`
+  cost double), so quote **~911 characters** of headroom. (`head -c 65536` in
   the hook is a different guard — §5.6.)
 - Don't use bashisms — macOS `/bin/sh`, Debian dash, and Git Bash must all
   run it. (§5.8)
